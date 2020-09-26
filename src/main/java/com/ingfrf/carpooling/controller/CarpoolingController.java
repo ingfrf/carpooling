@@ -4,7 +4,6 @@ import com.ingfrf.carpooling.model.Car;
 import com.ingfrf.carpooling.model.Journey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +36,7 @@ public class CarpoolingController {
     @PostMapping("dropoff")
     public ResponseEntity<String> dropoff(@RequestBody MultiValueMap<String,String> request) {
         log.info("DropOff: "+request.get("ID"));
-        return new ResponseEntity<String>("Parece que foi ben", HttpStatus.ACCEPTED);
+        return new ResponseEntity<>("Parece que foi ben", HttpStatus.ACCEPTED);
     }
 
     @PostMapping("locate")
@@ -45,6 +44,6 @@ public class CarpoolingController {
         log.info("Locate: "+ Integer.parseInt(request.get("ID").get(0)));
         Car car = Car.builder()
                 .id(9).seats(8).build();
-        return new ResponseEntity<Car>(car, HttpStatus.OK);
+        return new ResponseEntity<>(car, HttpStatus.OK);
     }
 }
