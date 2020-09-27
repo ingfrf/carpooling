@@ -2,12 +2,14 @@ package com.ingfrf.carpooling.controller;
 
 import com.ingfrf.carpooling.model.Car;
 import com.ingfrf.carpooling.model.Journey;
+import com.ingfrf.carpooling.model.LocateResponse;
 import com.ingfrf.carpooling.service.CarpoolingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -47,10 +49,14 @@ public class CarpoolingController {
     }
 
     @PostMapping("locate")
-    public ResponseEntity<Car> locate(@RequestBody MultiValueMap<String,String> request) {
-        log.info("Locate: "+ Integer.parseInt(request.get("ID").get(0)));
-        Car car = Car.builder()
-                .id(9).seats(8).build();
-        return new ResponseEntity<>(car, HttpStatus.OK);
+    public ResponseEntity<Car> locate(@RequestBody MultiValueMap<String,String> request) throws HttpMediaTypeNotSupportedException {
+        try {
+            Integer journeyId = Integer.parseInt(request.get("ID").get(0));
+            log.info("Locate: "+ journeyId);
+            LocateResponse response = carpoolingService.locateCarByJourneyId(journeyId);
+            return new ResponseEntity<>(response.getCar(), response.getHttpStatus());
+        } catch (NumberFormatException e) {
+            throw  new HttpMediaTypeNotSupportedException(e.toString());
+        }
     }
 }

@@ -10,4 +10,5 @@ public interface CarpoolingDAO {
     void addJourney(Journey journey);
     void removeJourneyById(Integer journeyId);
     Car retrieveCarByJourneyId(Integer journeyId);
+    boolean isJourneyInWaitingQueue(Integer journeyId);
 }

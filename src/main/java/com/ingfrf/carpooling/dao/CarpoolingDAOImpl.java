@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 public class CarpoolingDAOImpl implements CarpoolingDAO {
-    //private HashMap<Integer, Queue<Car>> carMap;
-    //private CarMap carMap;
     private HashMap<Integer, Car> availableCars;
     private HashMap<Integer, Car> travels;
     private Queue<Journey> waitingQueue;
@@ -89,12 +87,18 @@ public class CarpoolingDAOImpl implements CarpoolingDAO {
         if (travels.containsKey(journeyId)) {
             return travels.get(journeyId);
         }
-        waitingQueue.contains(journeyId);
         return null;
     }
 
+    @Override
+    public boolean isJourneyInWaitingQueue(Integer journeyId) {
+        return waitingQueue.stream()
+                .filter(j -> j.getId() == journeyId)
+                .findFirst()
+                .isPresent();
+    }
+
     private void initialization() {
-        //carMap = new CarMap();
         availableCars = new HashMap<>();
         travels = new HashMap<>();
         waitingQueue = new LinkedList<>();
