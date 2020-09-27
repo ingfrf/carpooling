@@ -25,7 +25,6 @@ public class CarpoolingDAOImpl implements CarpoolingDAO {
         // (existing journeys and cars)
         initialization();
         carList.forEach(car -> availableCars.put(car.getId(), car));
-        System.out.println("abofe");
     }
 
     @Override
@@ -33,14 +32,12 @@ public class CarpoolingDAOImpl implements CarpoolingDAO {
         Car selectedCar;
 
         List<Car> mAvailableCars = availableCars.entrySet().stream()
-                .filter(v -> v.getValue().getSeats() == journey.getPeople())
+                .filter(v -> v.getValue().getSeats().intValue() == journey.getPeople().intValue())
                 .map(Map.Entry::getValue)
-                .collect(Collectors.toList())
-        ;
+                .collect(Collectors.toList());
 
         System.out.println("/////////////////////////////");
         System.out.println(mAvailableCars);
-
 
 
         List<Car> maxAvailableCars = availableCars.entrySet().stream()
@@ -49,9 +46,8 @@ public class CarpoolingDAOImpl implements CarpoolingDAO {
                 .collect(Collectors.groupingBy(Car::getSeats))
                 .entrySet().stream()
                 .map(Map.Entry::getValue)
-                .reduce((l1,l2) -> l1.size() >= l2.size() ? l1: l2)
-                .orElse(Collections.emptyList())
-        ;
+                .reduce((l1, l2) -> l1.size() >= l2.size() ? l1 : l2)
+                .orElse(Collections.emptyList());
 
         System.out.println("-------- filtrados ---------------");
         System.out.println(availableCars.entrySet().stream()
@@ -59,7 +55,7 @@ public class CarpoolingDAOImpl implements CarpoolingDAO {
                 .map(Map.Entry::getValue)
                 .collect(Collectors.groupingBy(Car::getSeats)));
 
-        if (maxAvailableCars != null && !maxAvailableCars.isEmpty()) {
+        if (!maxAvailableCars.isEmpty()) {
             System.out.println("****** DISPONIBLES ******");
             System.out.println(maxAvailableCars);
             System.out.println("-------- SELECTED ------");
@@ -74,28 +70,43 @@ public class CarpoolingDAOImpl implements CarpoolingDAO {
     }
 
     @Override
-    public void removeJourneyById(Integer journeyId) {
-       if (travels.containsKey(journeyId)) {
-           travels.remove(journeyId);
-       }
-       // se se fan 2 cousas, fanse no servicio
-       boolean result = waitingQueue.removeIf(w -> w.getId() == journeyId);
+    public void removeJourneyFromTravelsById(Integer journeyId) {
+        // the journey drops off the people
+        // so a new car is available
+        Car car = retrieveCarByJourneyId(journeyId);
+        travels.remove(journeyId);
+        // check if the car can pick up a waiting journey
+        Optional<Journey> waitingJourney = waitingQueue.stream()
+                .filter(j -> j.getPeople() <= car.getSeats())
+                .findFirst();
+        if (waitingJourney.isPresent()) {
+            travels.put(waitingJourney.get().getId(), car);
+            removeJourneyFromWaitingQueueById(waitingJourney.get().getId());
+        } else {
+            availableCars.put(car.getId(), car);
+        }
+        printAll();
+    }
+
+    @Override
+    public void removeJourneyFromWaitingQueueById(Integer journeyId) {
+        waitingQueue.removeIf(w -> w.getId().intValue() == journeyId.intValue());
     }
 
     @Override
     public Car retrieveCarByJourneyId(Integer journeyId) {
-        if (travels.containsKey(journeyId)) {
-            return travels.get(journeyId);
-        }
-        return null;
+        return travels.get(journeyId);
+    }
+
+    @Override
+    public boolean isJourneyInTravels(Integer journeyId) {
+        return travels.containsKey(journeyId);
     }
 
     @Override
     public boolean isJourneyInWaitingQueue(Integer journeyId) {
         return waitingQueue.stream()
-                .filter(j -> j.getId() == journeyId)
-                .findFirst()
-                .isPresent();
+                .anyMatch(j -> j.getId().intValue() == journeyId.intValue());
     }
 
     private void initialization() {
@@ -106,14 +117,17 @@ public class CarpoolingDAOImpl implements CarpoolingDAO {
 
     // just for test
     private void printAvailableCars() {
-        availableCars.entrySet().stream().forEach(System.out::println);
+        availableCars.entrySet().forEach(System.out::println);
     }
+
     private void printTravels() {
-        travels.entrySet().stream().forEach(System.out::println);
+        travels.entrySet().forEach(System.out::println);
     }
+
     private void printWaitingQueue() {
         waitingQueue.forEach(System.out::println);
     }
+
     private void printAll() {
         System.out.println("***************** AVAILABLES *****************");
         printAvailableCars();

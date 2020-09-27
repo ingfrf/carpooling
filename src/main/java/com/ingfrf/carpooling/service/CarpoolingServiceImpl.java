@@ -27,9 +27,22 @@ public class CarpoolingServiceImpl implements CarpoolingService {
     }
 
     @Override
+    public HttpStatus dropJourneyById(Integer journeyId) {
+        if (carpoolingDAO.isJourneyInTravels(journeyId)) {
+            carpoolingDAO.removeJourneyFromTravelsById(journeyId);
+            return HttpStatus.OK;
+        }
+        if (carpoolingDAO.isJourneyInWaitingQueue(journeyId)) {
+            carpoolingDAO.removeJourneyFromWaitingQueueById(journeyId);
+            return HttpStatus.NO_CONTENT;
+        }
+        return HttpStatus.BAD_REQUEST;
+    }
+
+    @Override
     public LocateResponse locateCarByJourneyId(Integer journeyId) {
-        Car car = carpoolingDAO.retrieveCarByJourneyId(journeyId);
-        if (car != null) {
+        if (carpoolingDAO.isJourneyInTravels(journeyId)) {
+            Car car = carpoolingDAO.retrieveCarByJourneyId(journeyId);
             return LocateResponse.builder()
                     .car(car)
                     .httpStatus(HttpStatus.OK)

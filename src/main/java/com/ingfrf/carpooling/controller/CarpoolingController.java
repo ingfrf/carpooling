@@ -43,9 +43,15 @@ public class CarpoolingController {
     }
 
     @PostMapping("dropoff")
-    public ResponseEntity<String> dropoff(@RequestBody MultiValueMap<String,String> request) {
-        log.info("DropOff: "+request.get("ID"));
-        return new ResponseEntity<>("Parece que foi ben", HttpStatus.ACCEPTED);
+    public ResponseEntity<?> dropoff(@RequestBody MultiValueMap<String,String> request) throws HttpMediaTypeNotSupportedException {
+        try {
+            Integer journeyId = Integer.parseInt(request.get("ID").get(0));
+            log.info("DropOff: "+journeyId);
+            HttpStatus httpStatus = carpoolingService.dropJourneyById(journeyId);
+            return new ResponseEntity<>(httpStatus);
+        } catch (NumberFormatException e) {
+            throw new HttpMediaTypeNotSupportedException(e.toString());
+        }
     }
 
     @PostMapping("locate")

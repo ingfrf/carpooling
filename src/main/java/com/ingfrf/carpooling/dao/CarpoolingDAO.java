@@ -8,7 +8,9 @@ import java.util.List;
 public interface CarpoolingDAO {
     void addCars(List<Car> carList);
     void addJourney(Journey journey);
-    void removeJourneyById(Integer journeyId);
+    void removeJourneyFromTravelsById(Integer journeyId);
+    void removeJourneyFromWaitingQueueById(Integer journeyId);
     Car retrieveCarByJourneyId(Integer journeyId);
+    boolean isJourneyInTravels(Integer journeyId);
     boolean isJourneyInWaitingQueue(Integer journeyId);
 }
