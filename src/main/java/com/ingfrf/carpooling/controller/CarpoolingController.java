@@ -2,7 +2,9 @@ package com.ingfrf.carpooling.controller;
 
 import com.ingfrf.carpooling.model.Car;
 import com.ingfrf.carpooling.model.Journey;
+import com.ingfrf.carpooling.service.CarpoolingService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
@@ -15,6 +17,9 @@ import java.util.ArrayList;
 @RequestMapping("/")
 public class CarpoolingController {
 
+    @Autowired
+    private CarpoolingService carpoolingService;
+
     @GetMapping("status")
     @ResponseStatus(HttpStatus.OK)
     public void getStatus() {
@@ -25,12 +30,14 @@ public class CarpoolingController {
     @ResponseStatus(HttpStatus.OK)
     public void putCars(@RequestBody ArrayList<Car> carList) {
         carList.forEach(car -> log.info("Car number: " + car.getId() + " with " + car.getSeats()+" seats"));
+        carpoolingService.addCars(carList);
     }
 
     @PostMapping("journey")
     @ResponseStatus(HttpStatus.OK)
     public void postJourney(@RequestBody Journey journey) {
         log.info("Journey number: " + journey.getId() + " with " + journey.getPeople()+" people");
+        carpoolingService.addJourney(journey);
     }
 
     @PostMapping("dropoff")
