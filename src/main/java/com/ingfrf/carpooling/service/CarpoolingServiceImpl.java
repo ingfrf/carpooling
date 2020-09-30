@@ -4,6 +4,7 @@ import com.ingfrf.carpooling.dao.CarpoolingDAO;
 import com.ingfrf.carpooling.model.Car;
 import com.ingfrf.carpooling.model.Journey;
 import com.ingfrf.carpooling.model.LocateResponse;
+import com.ingfrf.carpooling.model.Travel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,11 @@ public class CarpoolingServiceImpl implements CarpoolingService {
     public void addJourney(Journey journey) {
         Car car = carpoolingDAO.retrieveAvailableCar(journey.getPeople());
         if (car != null) {
-            carpoolingDAO.addJourney(journey, car);
+            Travel travel = Travel.builder()
+                    .car(car)
+                    .journey(journey)
+                    .build();
+            carpoolingDAO.addTravel(travel);
         } else {
             carpoolingDAO.addJourneyToWaitingQueue(journey);
         }

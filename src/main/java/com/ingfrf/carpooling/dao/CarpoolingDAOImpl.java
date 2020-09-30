@@ -2,6 +2,7 @@ package com.ingfrf.carpooling.dao;
 
 import com.ingfrf.carpooling.model.Car;
 import com.ingfrf.carpooling.model.Journey;
+import com.ingfrf.carpooling.model.Travel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
 @Repository
 public class CarpoolingDAOImpl implements CarpoolingDAO {
     private HashMap<Integer, Car> availableCars;
-    private HashMap<Integer, Car> travels;
+    private HashMap<Integer, Travel> travels;
     private Queue<Journey> waitingQueue;
 
     public CarpoolingDAOImpl() {
@@ -32,9 +33,9 @@ public class CarpoolingDAOImpl implements CarpoolingDAO {
     }
 
     @Override
-    public void addJourney(Journey journey, Car car) {
-        travels.put(journey.getId(), car);
-        availableCars.remove(car.getId());
+    public void addTravel(Travel travel) {
+        travels.put(travel.getJourney().getId(), travel);
+        availableCars.remove(travel.getCar().getId());
     }
 
     @Override
@@ -77,7 +78,11 @@ public class CarpoolingDAOImpl implements CarpoolingDAO {
                 .filter(j -> j.getPeople() <= car.getSeats())
                 .findFirst();
         if (waitingJourney.isPresent()) {
-            travels.put(waitingJourney.get().getId(), car);
+            Travel travel = Travel.builder()
+                    .car(car)
+                    .journey(waitingJourney.get())
+                    .build();
+            travels.put(waitingJourney.get().getId(), travel);
             removeJourneyFromWaitingQueueById(waitingJourney.get().getId());
         } else {
             availableCars.put(car.getId(), car);
@@ -92,7 +97,7 @@ public class CarpoolingDAOImpl implements CarpoolingDAO {
 
     @Override
     public Car retrieveCarByJourneyId(Integer journeyId) {
-        return travels.get(journeyId);
+        return travels.get(journeyId).getCar();
     }
 
     @Override
