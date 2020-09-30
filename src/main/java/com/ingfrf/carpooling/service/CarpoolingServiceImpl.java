@@ -23,7 +23,13 @@ public class CarpoolingServiceImpl implements CarpoolingService {
 
     @Override
     public void addJourney(Journey journey) {
-        carpoolingDAO.addJourney(journey);
+        Car car = carpoolingDAO.retrieveAvailableCar(journey.getPeople());
+        if (car != null) {
+            carpoolingDAO.addJourney(journey, car);
+        } else {
+            carpoolingDAO.addJourneyToWaitingQueue(journey);
+        }
+        carpoolingDAO.printAll();
     }
 
     @Override
