@@ -45,12 +45,14 @@ public class CarpoolingDAOImpl implements CarpoolingDAO {
 
     @Override
     public Car retrieveAvailableCar(Integer people) {
-        // TODO Delete
-        System.out.println("-------- filtrados ---------------");
-        System.out.println(availableCars.values().stream()
+        // just for tests
+        log.debug("\n-------- filtered ---------------\n" +
+                availableCars.values().stream()
                         .filter(c -> c.getSeats() >= people)
                         .sorted(Comparator.comparingInt(Car::getSeats))
-                .collect(Collectors.groupingBy(Car::getSeats)));
+                .collect(Collectors.groupingBy(Car::getSeats))
+                .toString()
+        );
 
 
         Optional<Car> maxAvailableCarsBySeat = availableCars.values().stream()
@@ -59,8 +61,8 @@ public class CarpoolingDAOImpl implements CarpoolingDAO {
                 //.sorted(Comparator.comparingInt(Car::getSeats))
                 //.findFirst();
         if (maxAvailableCarsBySeat.isPresent()) {
-            //TODO delete
-            System.out.println("Selected::"+maxAvailableCarsBySeat.get());
+            // just for test
+            log.debug("Selected::"+maxAvailableCarsBySeat.get());
 
             return maxAvailableCarsBySeat.get();
         }
@@ -113,24 +115,24 @@ public class CarpoolingDAOImpl implements CarpoolingDAO {
 
     // just for test
     private void printAvailableCars() {
-        availableCars.entrySet().forEach(System.out::println);
+        availableCars.values().forEach(c -> log.debug(c.toString()));
     }
 
     private void printTravels() {
-        travels.entrySet().forEach(System.out::println);
+        travels.values().forEach(t -> log.debug(t.toString()));
     }
 
     private void printWaitingQueue() {
-        waitingQueue.forEach(System.out::println);
+        waitingQueue.forEach(j-> log.debug(j.toString()));
     }
 
     @Override
     public void printAll() {
-        System.out.println("***************** AVAILABLES *****************");
+        log.debug("***************** AVAILABLES *****************");
         printAvailableCars();
-        System.out.println("***************** TRAVELS *****************");
+        log.debug("***************** TRAVELS *****************");
         printTravels();
-        System.out.println("***************** WAITING *****************");
+        log.debug("***************** WAITING *****************");
         printWaitingQueue();
     }
 }

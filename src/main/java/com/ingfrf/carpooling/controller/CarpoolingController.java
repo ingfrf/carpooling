@@ -31,14 +31,14 @@ public class CarpoolingController {
     @PutMapping("cars")
     @ResponseStatus(HttpStatus.OK)
     public void putCars(@RequestBody ArrayList<Car> carList) {
-        carList.forEach(car -> log.info("Car number: " + car.getId() + " with " + car.getSeats()+" seats"));
+        carList.forEach(car -> log.debug("Car number: " + car.getId() + " with " + car.getSeats()+" seats"));
         carpoolingService.addCars(carList);
     }
 
     @PostMapping("journey")
     @ResponseStatus(HttpStatus.OK)
     public void postJourney(@RequestBody Journey journey) {
-        log.info("Journey number: " + journey.getId() + " with " + journey.getPeople()+" people");
+        log.debug("Journey number: " + journey.getId() + " with " + journey.getPeople()+" people");
         carpoolingService.addJourney(journey);
     }
 
@@ -46,7 +46,7 @@ public class CarpoolingController {
     public ResponseEntity<?> dropoff(@RequestBody MultiValueMap<String,String> request) throws HttpMediaTypeNotSupportedException {
         try {
             Integer journeyId = Integer.parseInt(request.get("ID").get(0));
-            log.info("DropOff: "+journeyId);
+            log.debug("DropOff: "+journeyId);
             HttpStatus httpStatus = carpoolingService.dropJourneyById(journeyId);
             return new ResponseEntity<>(httpStatus);
         } catch (NumberFormatException e) {
@@ -58,7 +58,7 @@ public class CarpoolingController {
     public ResponseEntity<Car> locate(@RequestBody MultiValueMap<String,String> request) throws HttpMediaTypeNotSupportedException {
         try {
             Integer journeyId = Integer.parseInt(request.get("ID").get(0));
-            log.info("Locate: "+ journeyId);
+            log.debug("Locate: "+ journeyId);
             LocateResponse response = carpoolingService.locateCarByJourneyId(journeyId);
             return new ResponseEntity<>(response.getCar(), response.getHttpStatus());
         } catch (NumberFormatException e) {
